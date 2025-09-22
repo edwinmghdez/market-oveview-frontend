@@ -1,16 +1,55 @@
 <script setup lang="ts">
+import { computed, onMounted } from 'vue';
+import { useMarketStore } from '../store/market';
+
+
+  const market = useMarketStore()
+
+  const props = defineProps<{
+    id: number
+  }>()
+
+  const handleHousingCounts = async () => {
+    await market.housingCounts(props.id)
+  }
+
+  onMounted(async () => {
+    await handleHousingCounts()
+  })
+
+  const items = computed(() => {
+    const data = market.housingCountsResults
+    return Array.isArray(data?.items) ? data.items : []
+  })
+
+  const dates = computed(() => {
+    return items.value.map(item => item.date)
+  })
+
+  const sales = computed(() => {
+    return items.value.map(item => item.sales)
+  })
+
+  const new_listings_for_sale = computed(() => {
+    return items.value.map(item => item.new_listings_for_sale)
+  })
+
+  const new_rental_listings = computed(() => {
+    return items.value.map(item => item.new_rental_listings)
+  })
+
   const series = [
     {
-      name: 'Active Users',
-      data: [31, 40, 28, 51, 42, 109, 100]
+      name: 'Sales',
+      data: sales.value,
     },
     {
-      name: 'New Registrations',
-      data: [11, 32, 45, 32, 34, 52, 41]
+      name: 'New Listings For Sale',
+      data: new_listings_for_sale.value
     },
     {
-      name: 'Other',
-      data: [20, 52, 75, 32, 44, 42, 91]
+      name: 'New Rental Listings',
+      data: new_rental_listings.value
     }
   ]
 
@@ -21,21 +60,37 @@
     },
     stroke: { curve: 'smooth' },
     xaxis: {
-      categories: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
+      categories: dates.value,
+      labels: {
+        style: {
+          colors: '#ffffff',
+        },
+      },
     },
-    dataLabels: {
+    yaxis: {
+      labels: {
+        style: {
+          colors: '#ffffff',
+        },
+      },
+    },
+    tooltip: {
+      theme: 'dark',
       style: {
-        colors: ['#ffffff', '#ffffff', '#ffffff']
-      }
+        fontSize: '12px',
+        color: '#000000',
+      },
     },
-    markers: {
-      colors: ['#ffffff', '#ffffff', '#ffffff']
+    legend: {
+      labels: {
+        colors: '#ffffff',
+      },
     }
   }
 </script>
 
 <template>
-  <div class="w-3xl">
+  <div>
     <apexchart
       type="line"
       height="350"

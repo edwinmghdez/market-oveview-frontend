@@ -3,11 +3,12 @@ import { useMarketService } from '../services/useMarketService'
 import { ref } from 'vue'
 
 export const useMarketStore = defineStore('market', () => {
-  const { searchMarkets, housingEventPrices } = useMarketService()
+  const { searchMarkets, housingEventPrices, housingEventCounts } = useMarketService()
 
   const query = ref('')
   const results = ref([])
   const housingPricesResults = ref({})
+  const housingCountsResults = ref({})
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -35,5 +36,27 @@ export const useMarketStore = defineStore('market', () => {
     }
   }
 
-  return { query, results, housingPricesResults, loading, error, search, housingPrices }
+  const housingCounts = async (id: number) => {
+    loading.value = true
+    try {
+      const response = await housingEventCounts(id)
+      housingCountsResults.value = response
+    } catch (err: any) {
+      error.value = err || 'Server Error'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+    query,
+    results,
+    housingPricesResults,
+    housingCountsResults,
+    loading,
+    error,
+    search,
+    housingPrices,
+    housingCounts,
+  }
 })

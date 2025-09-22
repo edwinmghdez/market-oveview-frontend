@@ -16,7 +16,11 @@ export function useMarketService() {
     return data
   }
 
-  const housingEventCounts = async (id: number) => {}
+  const housingEventCounts = async (id: number) => {
+    const data = await client.get(`housing-event-counts/${id}`).then((response) => response)
+
+    return data
+  }
 
   return { searchMarkets, housingEventPrices, housingEventCounts }
 }

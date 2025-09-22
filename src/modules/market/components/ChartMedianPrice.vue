@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useMarketStore } from '../store/market';
 
   const market = useMarketStore()
@@ -12,15 +12,27 @@ import { useMarketStore } from '../store/market';
     await market.housingPrices(props.id)
   }
 
-  onMounted(() => {
-    handleHousingPrices()
-    console.log(market.housingPricesResults)
+  onMounted(async () => {
+    await handleHousingPrices()
+  })
+
+  const items = computed(() => {
+    const data = market.housingPricesResults
+    return Array.isArray(data?.items) ? data.items : []
+  })
+
+  const dates = computed(() => {
+    return items.value.map(item => item.date)
+  })
+
+  const prices = computed(() => {
+    return items.value.map(item => item.price.median.sales)
   })
 
   const series = [
     {
       name: 'Median Price',
-      data: [31, 40, 28, 51, 42, 109, 100]
+      data: prices.value
     },
   ]
 
@@ -31,21 +43,32 @@ import { useMarketStore } from '../store/market';
     },
     stroke: { curve: 'smooth' },
     xaxis: {
-      categories: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
+      categories: dates.value,
+      labels: {
+        style: {
+          colors: '#ffffff',
+        },
+      },
     },
-    dataLabels: {
+    yaxis: {
+      labels: {
+        style: {
+          colors: '#ffffff',
+        },
+      },
+    },
+    tooltip: {
+      theme: 'dark',
       style: {
-        colors: ['#ffffff', '#ffffff', '#ffffff']
-      }
-    },
-    markers: {
-      colors: ['#ffffff', '#ffffff', '#ffffff']
+        fontSize: '12px',
+        color: '#000000',
+      },
     },
   }
 </script>
 
 <template>
-  <div class="w-3xl">
+  <div>
     <apexchart
       type="line"
       height="350"
