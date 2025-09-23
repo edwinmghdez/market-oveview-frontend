@@ -1,11 +1,10 @@
 import client from '@/core/config/axios'
 
 export function useMarketService() {
-  const searchMarkets = async (query: string) => {
-    const queryParam = query.value
+  const searchMarkets = async (query: string, offset: number) => {
     const data = await client
-      .get('search/markets', { params: { query: queryParam } })
-      .then((response) => response.items)
+      .get('search/markets', { params: { query: query, offset: offset } })
+      .then((response) => response)
 
     return data
   }

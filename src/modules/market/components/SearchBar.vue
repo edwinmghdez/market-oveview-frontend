@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useMarketStore } from '../store/market';
 import { useRouter } from 'vue-router';
 
@@ -18,11 +18,28 @@ import { useRouter } from 'vue-router';
     handleSearchMarket()
   })
 
-  watch(() => market.query, async (newQuery) => {
-    if (newQuery.length > 2 || newQuery.length === 0) {
-      await handleSearchMarket()
-    }
+  const totalPages = computed(() => {
+    if (market.totalItems === 0) return 1
+    return Math.ceil(market.totalItems/market.pageSize)
   })
+
+  const pages = computed(() => {
+    const pagesArray = [];
+    const startPage = Math.max(1, market.currentPage - 2);
+    const endPage = Math.min(totalPages.value, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pagesArray.push(i);
+    }
+    return pagesArray;
+  });
+
+  watch(() => market.query, (newQuery) => {
+    market.currentPage = 1;
+    if (newQuery.length > 2 || newQuery.length === 0) {
+      handleSearchMarket();
+    }
+  });
 </script>
 
 <template>
@@ -42,6 +59,39 @@ import { useRouter } from 'vue-router';
         </div>
         <button @click="goToMarketDetail(item.parcl_id)" class="bg-blue-500 p-2 rounded-xl w-full max-w-xs cursor-pointer hover:bg-blue-600 mt-4 text-white font-semibold transition duration-300">More details</button>
       </div>
+    </div>
+
+    <div v-if="totalPages > 1 && !market.loading"
+      class="flex justify-center items-center mt-6 space-x-2"
+    >
+      <button
+        @click="market.changePage(market.currentPage - 1)"
+        :disabled="market.currentPage === 1"
+        class="w-20 bg-blue-500 hover:bg-blue-600 hover:cursor-pointer text-white p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition duration-300"
+      >
+        Previous
+      </button>
+
+      <button
+        v-for="page in pages"
+        :key="page"
+        @click="market.changePage(page)"
+        :class="{
+          'w-10 bg-blue-500 text-white hover:cursor-pointer': market.currentPage === page,
+          'w-10 bg-gray-800 text-white hover:bg-gray-700 hover:cursor-pointer' : market.currentPage !== page,
+        }"
+        class="p-2 rounded-lg transition duration-300"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        @click="market.changePage(market.currentPage + 1)"
+        :disabled="market.currentPage === totalPages"
+        class="w-20 bg-blue-500 hover:bg-blue-600 hover:cursor-pointer text-white p-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition duration-300"
+      >
+        Next
+      </button>
     </div>
 
     <div v-if="market.loading" class="text-center text-2xl text-white mt-8">Loading...</div>
