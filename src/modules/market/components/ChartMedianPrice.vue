@@ -21,20 +21,12 @@ import { useMarketStore } from '../store/market';
     return Array.isArray(data?.items) ? data.items : []
   })
 
-  const dates = computed(() => {
-    return items.value.map(item => item.date)
-  })
-
-  const prices = computed(() => {
-    return items.value.map(item => item.price.median.sales)
-  })
-
-  const series = [
+  const series = computed(() => [
     {
       name: 'Median Price',
-      data: prices.value
+      data: items.value.map(item => item.price.median.sales)
     },
-  ]
+  ])
 
   const chartOptions = {
     chart: {
@@ -43,7 +35,7 @@ import { useMarketStore } from '../store/market';
     },
     stroke: { curve: 'smooth' },
     xaxis: {
-      categories: dates.value,
+      categories: items.value.map(item => item.date),
       labels: {
         style: {
           colors: '#ffffff',

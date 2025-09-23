@@ -22,36 +22,20 @@ import { useMarketStore } from '../store/market';
     return Array.isArray(data?.items) ? data.items : []
   })
 
-  const dates = computed(() => {
-    return items.value.map(item => item.date)
-  })
-
-  const sales = computed(() => {
-    return items.value.map(item => item.sales)
-  })
-
-  const new_listings_for_sale = computed(() => {
-    return items.value.map(item => item.new_listings_for_sale)
-  })
-
-  const new_rental_listings = computed(() => {
-    return items.value.map(item => item.new_rental_listings)
-  })
-
-  const series = [
+  const series = computed(() =>[
     {
       name: 'Sales',
-      data: sales.value,
+      data: items.value.map(item => item.sales),
     },
     {
       name: 'New Listings For Sale',
-      data: new_listings_for_sale.value
+      data: items.value.map(item => item.new_listings_for_sale)
     },
     {
       name: 'New Rental Listings',
-      data: new_rental_listings.value
+      data: items.value.map(item => item.new_rental_listings)
     }
-  ]
+  ])
 
   const chartOptions = {
     chart: {
@@ -60,7 +44,7 @@ import { useMarketStore } from '../store/market';
     },
     stroke: { curve: 'smooth' },
     xaxis: {
-      categories: dates.value,
+      categories: items.value.map(item => item.date),
       labels: {
         style: {
           colors: '#ffffff',
