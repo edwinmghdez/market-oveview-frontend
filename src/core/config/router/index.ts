@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [...marketRoutes]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/frontend/'),
   routes,
 })
 
